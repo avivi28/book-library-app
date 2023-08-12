@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Form, ListGroup, Stack, Spinner } from 'react-bootstrap';
+import {
+	Container,
+	Form,
+	Stack,
+	Spinner,
+	Card,
+	Row,
+	Col,
+} from 'react-bootstrap';
 import axios from 'axios';
 import CustomPagination from './component/CustomPagination';
+import noFoundImage from './icon-image-not-found.jpg';
 
 const BookList = () => {
 	const [searchTerm, setSearchTerm] = useState('');
@@ -64,17 +73,41 @@ const BookList = () => {
 						/>
 					</Form.Group>
 				</Form>
-				<ListGroup>
-					{showLoader ? (
-						<Container className="d-flex justify-content-center mt-4 mb-4">
-							<Spinner animation="border" role="status"></Spinner>
-						</Container>
-					) : (
-						filteredBooks.map((book, index) => (
-							<ListGroup.Item key={index}>{book.title}</ListGroup.Item>
-						))
-					)}
-				</ListGroup>
+				<Container>
+					<Row className="g-4">
+						{showLoader ? (
+							<Col className="d-flex justify-content-center mt-4 mb-4">
+								<Spinner animation="border" role="status"></Spinner>
+							</Col>
+						) : (
+							filteredBooks.map((book, index) => (
+								// <ListGroup.Item key={index}>{book.title}</ListGroup.Item>
+								<Col xs={6} md={3} lg={2}>
+									<Card>
+										{book.cover_i ? (
+											<Card.Img
+												variant="top"
+												src={`https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`}
+											/>
+										) : (
+											<Card.Img variant="top" src={noFoundImage} />
+										)}
+
+										<Card.Body>
+											<Card.Title>{book.title}</Card.Title>
+											<Card.Text>
+												Author: {book.author_name.join(', ')}
+											</Card.Text>
+											<Card.Text>
+												Publish Year: {book.publish_year.join(', ')}
+											</Card.Text>
+										</Card.Body>
+									</Card>
+								</Col>
+							))
+						)}
+					</Row>
+				</Container>
 				<CustomPagination
 					currentPage={currentPage}
 					totalPages={totalPages}
