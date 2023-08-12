@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import {
-	Container,
-	Form,
-	ListGroup,
-	Stack,
-	Pagination,
-	Spinner,
-} from 'react-bootstrap';
+import { Container, Form, ListGroup, Stack, Spinner } from 'react-bootstrap';
 import axios from 'axios';
+import CustomPagination from './component/CustomPagination';
 
 const BookList = () => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filteredBooks, setFilteredBooks] = useState([]);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [showLoader, setShowLoader] = useState(false);
+	const [totalResults, setTotalResults] = useState(0);
+	const [resultsPerPage] = useState(10);
+	const [totalPages, setTotalPages] = useState(0);
 
 	useEffect(() => {
 		const delayDebounceFn = setTimeout(() => {
@@ -21,10 +18,13 @@ const BookList = () => {
 			const formattedKeyword = convertToPlus(searchTerm);
 			axios
 				.get(
-					`https://openlibrary.org/search.json?q=${formattedKeyword}&limit=10&page=${currentPage}`
+					`https://openlibrary.org/search.json?q=${formattedKeyword}&limit=${resultsPerPage}&page=${currentPage}`
 				)
 				.then((res) => {
 					setFilteredBooks(res.data.docs);
+					setTotalResults(res.data.num_found);
+					const totalPages = Math.ceil(res.data.num_found / resultsPerPage);
+					setTotalPages(totalPages);
 				})
 				.catch((err) => {
 					console.log(err);
@@ -35,10 +35,14 @@ const BookList = () => {
 		}, 500);
 
 		return () => clearTimeout(delayDebounceFn);
-	}, [searchTerm]);
+	}, [searchTerm, currentPage]);
 
 	const handleSearch = (e) => {
 		setSearchTerm(e.target.value);
+	};
+
+	const handlePageChange = (pageNumber) => {
+		setCurrentPage(pageNumber);
 	};
 
 	const convertToPlus = (input) => {
@@ -71,23 +75,11 @@ const BookList = () => {
 						))
 					)}
 				</ListGroup>
-				<Pagination className="d-sm-flex flex-wrap justify-content-center">
-					<Pagination.First />
-					<Pagination.Prev />
-					<Pagination.Item>{1}</Pagination.Item>
-					<Pagination.Ellipsis />
-
-					<Pagination.Item>{10}</Pagination.Item>
-					<Pagination.Item>{11}</Pagination.Item>
-					<Pagination.Item active>{12}</Pagination.Item>
-					<Pagination.Item>{13}</Pagination.Item>
-					<Pagination.Item disabled>{14}</Pagination.Item>
-
-					<Pagination.Ellipsis />
-					<Pagination.Item>{20}</Pagination.Item>
-					<Pagination.Next />
-					<Pagination.Last />
-				</Pagination>
+				<CustomPagination
+					currentPage={currentPage}
+					totalPages={totalPages}
+					onPageChange={handlePageChange}
+				/>
 			</Stack>
 		</Container>
 	);
