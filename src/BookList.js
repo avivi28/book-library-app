@@ -81,8 +81,7 @@ const BookList = () => {
 							</Col>
 						) : (
 							filteredBooks.map((book, index) => (
-								// <ListGroup.Item key={index}>{book.title}</ListGroup.Item>
-								<Col xs={6} md={3} lg={2}>
+								<Col xs={6} md={3} key={index}>
 									<Card>
 										{book.cover_i ? (
 											<Card.Img
